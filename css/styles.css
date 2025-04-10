@@ -1,0 +1,796 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #E0F7FA, #80DEEA );
+    padding-bottom: 5%; 
+    font-family: 'Times New Roman', Times, serif;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background: rgba(7, 208, 215, 0.8);
+    align-items: center;
+    
+}
+
+img {
+    width: 50px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: large;
+    color: #000000;
+}
+
+nav a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #000000;
+}
+
+
+
+.info {
+    text-align: center;
+    padding: 100px 20px;
+}
+.info h1 {
+    font-size: 3em;
+    margin: 0;
+}
+.info p {
+    font-size: 1.5em;
+    margin: 20px 0;
+    }
+
+.info button {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    color: #fff;
+    background: #00a6ab;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+
+footer {
+    text-align: center;
+    padding: 15px;
+    background: #005f73;
+    color: white;
+    margin-top: 50px;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+footer a {
+    color: #ffdd57;
+    text-decoration: none;
+    margin: 0 10px;
+}
+footer a:hover {
+    text-decoration: underline;
+}
+
+a:hover{
+    color: #ffffff;
+    font-weight: bold;
+}
+
+button:hover {
+    color: #ffffff;
+    background-color: #005f63;
+    font-weight: bold;
+}
+
+.sidebar {
+    width: 250px; 
+    background: #005f73;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.sidebar a:hover { 
+    font-weight: bold;
+    color: #000000;
+}
+
+.tips{
+    display: block;
+    text-align: center;
+    padding: 10px;
+}
+
+.tips-container{
+    display: flex;
+    justify-content:space-between; 
+    text-align:justify;
+    gap: 20px;
+    padding: 20px;
+}
+
+.tips-container h2 {
+    text-align: center;
+}
+
+.low, .moderate, .high{
+    padding-left: 20px;
+    padding-right: 20px;
+    width: 30%;
+    background-color: #E0F7FA;
+    border: gray solid 1px;
+    border-radius: 10px;
+}
+
+.tips h1 h4{
+    text-align: center;
+}
+
+ul{
+    padding: 10px;
+}
+
+.swiper-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    position: relative;
+    overflow: hidden;
+    padding: 20px 0;
+}
+
+.swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    position: relative;
+}
+
+.swiper-slide iframe {
+    width: 100%;
+    height: 400px;
+    max-width: 800px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.about-us-content {
+    display: flex;
+    justify-content: left;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
+}
+
+.content {
+    flex: 1;
+    width: 70%;
+    max-width: 800px;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    background-color: white;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    color: #005f73;
+    
+    padding: 15px;
+    border-radius: 50%;
+    backdrop-filter: blur(2px);
+}
+
+.swiper-pagination {
+    position: relative;
+    margin-top: 20px;
+    bottom: auto;
+}
+
+nav a.active {
+    font-weight: bold;
+    color: white;
+    background-color: #005f73;
+    border-radius: 5px;
+    padding: 8px 15px;
+}
+
+
+
+/* Assessment */
+.assessment-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 160px);
+    padding: 20px 0;
+}
+
+.assessment-form {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 20%;
+    margin: 20px;
+}
+
+.assessment {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Consistent label-input ratio */
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.assessment label {
+    text-align: right;
+    white-space: nowrap;
+    padding-right: 10px;
+}
+
+.assessment input[type="number"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Keep other existing styles */
+.assessment-form button {
+    padding: 10px;
+    color: #fff;
+    background: #00a6ab;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.assessment-form h2 {
+    font-size: 24px;
+    color: #333;
+    text-align: center;
+}
+
+.assessment-form p {
+    text-align: center;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    font-size: small;
+}
+
+
+
+/* Login */
+.login-form {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.login-form h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.login-form .error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.login-form input,
+.login-form button {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.login-form input:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+.login-form button {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.login-form button:hover {
+    background-color: #357abd;
+}
+
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container i {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #777;
+}
+
+.password-container i:hover {
+    color: #333;
+}
+
+.login-form p {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #333;
+}
+
+.login-form a {
+    color: #4a90e2;
+    text-decoration: none;
+}
+
+.login-form a:hover {
+    text-decoration: underline;
+}
+
+
+
+
+/* Register */
+.user-form {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.user-form a {
+    color: #4a90e2;
+    text-decoration: none;
+}
+
+.user-form h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.user-form input,
+.user-form select,
+.user-form button {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.user-form input:focus,
+.user-form select:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+.user-form button {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    color: #fff;
+    background: #00a6ab;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.user-form button:hover {
+    background-color: #357abd;
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.form-row input {
+    width: 45%;
+}
+.form-row select {
+    width: 45%;
+}
+
+
+
+/* edit users*/
+.table-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.table-container th,
+.table-container td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+.table-container th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+.table-container tr:hover {
+    background-color: #f1f1f1;
+}
+.table-container .edit-btn,
+.table-container .delete-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.table-container .edit-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+.table-container .edit-btn:hover {
+    background-color: #45a049;
+}
+.table-container .delete-btn {
+    background-color: #f44336;
+    color: white;
+}
+.table-container .delete-btn:hover {
+    background-color: #d32f2f;
+}
+
+
+
+
+/* edit user form */
+.form-container{
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: center;
+
+}
+
+.form-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    gap: 30px;
+}
+
+.form-group input,
+.form-group select,
+.form-group button {
+    width: 400px;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+.form-group button {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-group button {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-group button:hover {
+    background-color: #357abd;
+}
+
+.form-group label {
+    text-align: left;
+    padding: 5px;
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 25px;
+
+}
+
+.form-group1 {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.submit-btn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    padding: 10px 20px;
+    background-color: #f44336;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+
+
+
+
+
+/* Settings */
+.user-details {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 25px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff, #f0f0f0);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    max-width: 550px;
+    margin: 20px auto;
+    transition: all 0.3s ease-in-out;
+}
+.user-details img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #4a90e2;
+    padding: 5px;
+    background: white;
+}
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-grow: 1;
+}
+.user-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+}
+.user-row:last-child {
+    border-bottom: none;
+}
+.user-row label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+.user-row span {
+    color: #666;
+    font-size: 15px;
+    font-weight: 500;
+}
+.operation {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+.edit-btn {
+    background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; transition: 0.3s; 
+}
+.edit-btn:hover {
+    background: #45a049;
+}
+.cancel-btn {
+    background: #e74c3c;color: white;padding: 10px 20px;border-radius: 8px;font-size: 16px;font-weight: 600; text-decoration: none; transition: 0.3s;
+}
+.cancel-btn:hover {
+    background: #c0392b;
+}
+
+
+/*History*/
+.history-content {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.9em;
+    min-width: 600px;
+    overflow-x: auto;
+}
+
+.history-table thead tr {
+    background-color: #005f73;
+    color: white;
+    text-align: left;
+}
+
+.history-table th,
+.history-table td {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.history-table tbody tr:nth-of-type(even) {
+    background-color: #f8f9fa;
+}
+
+.history-table tbody tr:last-of-type {
+    border-bottom: 2px solid #4a90e2;
+}
+
+.history-table tbody tr:hover {
+    background-color: #f1f4f8;
+    transition: background-color 0.2s ease;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.edit-btn, .delete-btn, .add-user-link {
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    font-size: 0.85em;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background-color: #ffc107;
+    color: #efefef;
+}
+
+.edit-btn:hover {
+    background-color: #f3b600;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+
+
+.add-user-link {
+    text-decoration: none;
+    color: white;
+    background-color: #1567b9;
+}
+
+.add-user-link:hover {
+    background-color: #087cf1;
+    color: white;
+}
+.error {
+    color: #dc3545;
+    background-color: #f8d7da;
+    padding: 1rem;
+    border-radius: 5px;
+    margin: 1rem 0;
+    border: 1px solid #f5c6cb;
+}
+
+.success-message {
+    color: #155724;
+    background-color: #d4edda;
+    padding: 1rem;
+    border-radius: 5px;
+    margin: 1rem 0;
+    border: 1px solid #c3e6cb;
+}
