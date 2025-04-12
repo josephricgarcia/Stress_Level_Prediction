@@ -696,6 +696,11 @@ button[type="submit"]:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.history-content a:hover{
+    color: #005f73;
+    font-weight: bold;
+}
+
 .history-table {
     width: 100%;
     border-collapse: collapse;
