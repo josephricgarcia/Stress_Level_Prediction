@@ -2,12 +2,11 @@
 include 'session.php';
 include 'connection.php';
 
-$userId = $_SESSION['user_id']; // Corrected session variable
+$userId = $_SESSION['user_id'];
 $assessments = [];
 $error = '';
 
-// Fetch assessments using userId
-$query = "SELECT * FROM assessment WHERE userId = ?"; // Corrected column name
+$query = "SELECT * FROM assessment WHERE userId = ?";
 $stmt = mysqli_prepare($dbhandle, $query);
 
 if ($stmt) {
@@ -22,9 +21,9 @@ if ($stmt) {
     }
     mysqli_stmt_close($stmt);
 } else {
-    $error = 'Error fetching data. Please try again later.';
+    $error = 'Error fetching data.';
 }
-mysqli_close($dbhandle); 
+mysqli_close($dbhandle);
 ?>
 
 <!DOCTYPE html>
@@ -64,7 +63,8 @@ mysqli_close($dbhandle);
                         <th>Social Hours</th>
                         <th>Active Hours</th>
                         <th>GWA</th>
-                        <th>Predictions</th>
+                        <th>Stress Level</th>
+                        <th>Confidence</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -77,10 +77,11 @@ mysqli_close($dbhandle);
                         <td><?php echo htmlspecialchars($row['socialhours']); ?></td>
                         <td><?php echo htmlspecialchars($row['activehours']); ?></td>
                         <td><?php echo htmlspecialchars($row['gwa']); ?></td>
-                        <td><?php echo htmlspecialchars($row['prediction']); ?></td>
+                        <td><?php echo htmlspecialchars($row['stress_level']); ?></td>
+                        <td><?php echo round($row['confidence'] * 100, 2); ?>%</td>
                         <td class="actions">
                             <a href="EditAssessment.php?id=<?php echo $row['id']; ?>" class="edit-btn">Edit</a>
-                            <form method="POST" action="DeleteAssessment.php" onsubmit="return confirm('Are you sure?')">
+                            <form method="POST" action="DeleteAssessment.php">
                                 <input type="hidden" name="assessment_id" value="<?php echo $row['id']; ?>">
                                 <button type="delete" class="delete-btn">Delete</button>
                             </form>
@@ -90,7 +91,7 @@ mysqli_close($dbhandle);
                 </tbody>
             </table>
         <?php else: ?>
-            <p>No assessments found. <a href="assessment.php">Create one now</a></p>
+            <p>No assessments found. <a href="Assessment.php">Create one now</a></p>
         <?php endif; ?>
     </div>
 
