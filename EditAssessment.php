@@ -29,41 +29,84 @@ mysqli_stmt_close($stmt);
 
 // Handle form submission
 if (isset($_POST['submit'])) {
-    $studyhours = (float) filter_input(INPUT_POST, 'studyhours', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0, 'max_range' => 24]]);
-    $hobbyhours = (float) filter_input(INPUT_POST, 'hobbyhours', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0, 'max_range' => 24]]);
-    $sleephours = (float) filter_input(INPUT_POST, 'sleephours', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0, 'max_range' => 24]]);
-    $socialhours = (float) filter_input(INPUT_POST, 'socialhours', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0, 'max_range' => 24]]);
-    $activehours = (float) filter_input(INPUT_POST, 'activehours', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0, 'max_range' => 24]]);
-    $gwa = (float) filter_input(INPUT_POST, 'gwa', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 1.0, 'max_range' => 5.0]]);
-    
+    // Input validation
+    $studyhours = filter_input(INPUT_POST, 'studyhours', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0, 'max_range' => 24]]);
+    $hobbyhours = filter_input(INPUT_POST, 'hobbyhours', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0, 'max_range' => 24]]);
+    $sleephours = filter_input(INPUT_POST, 'sleephours', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0, 'max_range' => 24]]);
+    $socialhours = filter_input(INPUT_POST, 'socialhours', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0, 'max_range' => 24]]);
+    $activehours = filter_input(INPUT_POST, 'activehours', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0, 'max_range' => 24]]);
+    $gwa = filter_input(INPUT_POST, 'gwa', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 1.0, 'max_range' => 5.0]]);
 
     if ($studyhours !== false && $hobbyhours !== false && $sleephours !== false &&
         $socialhours !== false && $activehours !== false && $gwa !== false) {
+        // API Call for prediction
+        $apiData = json_encode([
+            'studyhours' => (float)$studyhours,
+            'hobbyhours' => (float)$hobbyhours,
+            'sleephours' => (float)$sleephours,
+            'socialhours' => (float)$socialhours,
+            'activehours' => (float)$activehours,
+            'gwa' => (float)$gwa
+        ]);
 
-        $updateQuery = "UPDATE assessment SET 
-                        studyhours = ?, 
-                        hobbyhours = ?, 
-                        sleephours = ?, 
-                        socialhours = ?, 
-                        activehours = ?, 
-                        gwa = ? 
-                        WHERE id = ? AND userId = ?";
-        $stmt = mysqli_prepare($dbhandle, $updateQuery);
-        mysqli_stmt_bind_param($stmt, "ddddddis", $studyhours, $hobbyhours, $sleephours, $socialhours, $activehours, $gwa, $assessmentId, $userId);
+        $ch = curl_init('http://127.0.0.1:8000/predict_stress');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => $apiData,
+            CURLOPT_TIMEOUT => 10
+        ]);
 
-        if (mysqli_stmt_execute($stmt)) {
-            header("Location: History.php?update=success");
-            exit();
+        $response = curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($status === 200) {
+            $prediction = json_decode($response, true);
+
+            // Update assessment with new inputs and prediction
+            $updateQuery = "UPDATE assessment SET 
+                            studyhours = ?, 
+                            hobbyhours = ?, 
+                            sleephours = ?, 
+                            socialhours = ?, 
+                            activehours = ?, 
+                            gwa = ?, 
+                            stress_level = ?, 
+                            confidence = ? 
+                            WHERE id = ? AND userId = ?";
+            $stmt = mysqli_prepare($dbhandle, $updateQuery);
+            mysqli_stmt_bind_param($stmt, "ddddddssii", 
+                $studyhours, 
+                $hobbyhours, 
+                $sleephours, 
+                $socialhours, 
+                $activehours, 
+                $gwa, 
+                $prediction['stress_level'], 
+                $prediction['confidence'], 
+                $assessmentId, 
+                $userId
+            );
+
+            if (mysqli_stmt_execute($stmt)) {
+                header("Location: History.php?update=success");
+                exit();
+            } else {
+                $error = 'Error updating assessment: ' . mysqli_error($dbhandle);
+            }
+            mysqli_stmt_close($stmt);
         } else {
-            $error = 'Error updating assessment: ' . mysqli_error($dbhandle);
+            $error = 'Prediction service unavailable. Try again later.';
         }
-        mysqli_stmt_close($stmt);
     } else {
         $error = 'Invalid input. Please check your entries.';
     }
 }
 mysqli_close($dbhandle);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

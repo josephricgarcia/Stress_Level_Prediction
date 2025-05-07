@@ -81,9 +81,9 @@ mysqli_close($dbhandle);
                         <td><?php echo round($row['confidence'] * 100, 2); ?>%</td>
                         <td class="actions">
                             <a href="EditAssessment.php?id=<?php echo $row['id']; ?>" class="edit-btn">Edit</a>
-                            <form method="POST" action="DeleteAssessment.php">
+                            <form method="POST" action="DeleteAssessment.php" id="delete-form-<?php echo $row['id']; ?>">
                                 <input type="hidden" name="assessment_id" value="<?php echo $row['id']; ?>">
-                                <button type="delete" class="delete-btn">Delete</button>
+                                <button type="button" class="delete-btn" onclick="confirmDelete(<?php echo $row['id']; ?>)">Delete</button>
                             </form>
                         </td>
                     </tr>
@@ -100,5 +100,13 @@ mysqli_close($dbhandle);
         <a href="AboutUs.php">About Us</a> | <a href="PrivacyPolicy.php">Privacy Policy</a> | 
         <a href="TermsOfService.php">Terms of Service</a> | <a href="Contact.php">Contact Us</a>
     </footer>
+
+    <script>
+        function confirmDelete(assessmentId) {
+            if (confirm('Are you sure you want to delete this assessment? This action cannot be undone.')) {
+                document.getElementById('delete-form-' + assessmentId).submit();
+            }
+        }
+    </script>
 </body>
 </html>
