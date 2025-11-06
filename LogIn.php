@@ -1,59 +1,56 @@
 <?php
-session_start();
 include 'connection.php';
+session_start();
 
-if (!$dbhandle) {
-    die("<script>alert('Database connection failed: " . mysqli_connect_error() . "');</script>");
+// Verify salted + hashed password
+function verifyPasswordWithSalt(string $password, string $salt, string $hash): bool {
+    $saltedPassword = $salt . $password;
+    return password_verify($saltedPassword, $hash);
 }
 
-$error = "";
-if (isset($_POST['submit'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+$error_message = '';
+$success_message = isset($_GET['success']) ? $_GET['success'] : '';
 
-    $sql = "SELECT * FROM users WHERE username = ?";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = trim($_POST['username'] ?? '');
+    $password = trim($_POST['password'] ?? '');
 
-    if ($dbhandle instanceof mysqli) {
-        $stmt = mysqli_prepare($dbhandle, $sql);
-        if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "s", $username);
-
-            if (mysqli_stmt_execute($stmt)) {
-                $result = mysqli_stmt_get_result($stmt);
-                $row = mysqli_fetch_assoc($result);
-
-                if ($row) {
-                    if (password_verify($password, $row['password'])) {
-                        $_SESSION['user_id'] = $row['id'];
-                        $_SESSION['username'] = $row['username'];
-                        $_SESSION['role'] = $row['role'];
-                        $_SESSION['logged_in'] = true;
-
-                        if ($row['role'] === 'user') {
-                            header("Location: Home.php");
-                        } elseif ($row['role'] === 'admin') {
-                            header("Location: AdminDashboard.php");
-                        }
-                        exit();
-                    } else {
-                        echo "<script>alert('Invalid password');</script>";
-                    }
-                } else {
-                    echo "<script>alert('Invalid username');</script>";
-                }
-            } else {
-                echo "<script>alert('Data retrieval failed: " . mysqli_error($dbhandle) . "');</script>";
-            }
-            mysqli_stmt_close($stmt);
-        } else {
-            echo "<script>alert('SQL statement preparation failed: " . mysqli_error($dbhandle) . "');</script>";
-        }
+    if (empty($username) || empty($password)) {
+        $error_message = "Please fill in all fields.";
     } else {
-        echo "<script>alert('Invalid database connection object.');</script>";
+        $stmt = mysqli_prepare($dbhandle, "SELECT id, username, password, salt, role FROM users WHERE username = ?");
+        mysqli_stmt_bind_param($stmt, "s", $username);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if (mysqli_num_rows($result) > 0) {
+            $user = mysqli_fetch_assoc($result);
+            if (verifyPasswordWithSalt($password, $user['salt'], $user['password'])) {
+                $_SESSION['logged_in'] = true;
+                $_SESSION['username'] = $username;
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['role'] = $user['role'];
+                
+                // Redirect based on role
+                if ($user['role'] === 'admin') {
+                    header("Location: AdminDashboard.php");
+                } else {
+                    header("Location: Home.php");
+                }
+                exit;
+            } else {
+                $error_message = "Invalid password.";
+            }
+        } else {
+            $error_message = "User not found.";
+        }
+
+        mysqli_stmt_close($stmt);
     }
+    
+    mysqli_close($dbhandle);
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -64,7 +61,6 @@ if (isset($_POST['submit'])) {
     <link rel="stylesheet" href="css/styles.css">
     <link rel="shortcut icon" href="images/stresssense_logo.png">
 </head>
-
 <body>
     <header>
         <div class="logo">
@@ -74,24 +70,23 @@ if (isset($_POST['submit'])) {
 
     <div class="login-form">
         <h1>Sign In Your Account</h1>
-        <?php if (!empty($error)): ?>
-            <div class="error-message">
-                <?php echo htmlspecialchars($error); ?>
-            </div>
+        <?php if (!empty($error_message)): ?>
+            <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
         <?php endif; ?>
-        <form action="Login.php" method="post">
+        <?php if (!empty($success_message)): ?>
+            <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
+        <?php endif; ?>
+        <form action="LogIn.php" method="post">
             <input type="text" id="username" name="username" placeholder="Username" required>
             <input type="password" id="password" name="password" placeholder="Password" required>
             <button type="submit" name="submit">Log In</button>
-            
-
             <p>Don't have an account? <a href="SignUp.php">Sign Up</a></p>
         </form>
     </div>
 
     <footer>
-        &copy; 2025 StresSense. All Rights Reserved. |
-        <a href="About Us.php">About Us</a> | <a href="Privacy Policy.php">Privacy Policy</a> | <a href="Terms Of Service.php">Terms of Service</a> | <a href="Contact.php">Contact Us</a>
+        &copy; 2025 StressSense. All Rights Reserved. |
+        <a href="AboutUs.php">About Us</a> | <a href="PrivacyPolicy.php">Privacy Policy</a> | <a href="TermsOfService.php">Terms of Service</a> | <a href="Contact.php">Contact Us</a>
     </footer>
 </body>
 </html>
