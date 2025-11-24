@@ -23,6 +23,5 @@ session_unset();
 session_destroy();
 
 // Redirect to login
-header("Location: LogIn.php?success=You+have+been+logged+out+successfully.");
+header("Location: LogIn.php");
 exit();
-?>

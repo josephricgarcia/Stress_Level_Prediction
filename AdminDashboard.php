@@ -72,206 +72,317 @@ if ($success_message) {
     <title>StressSense - Admin Dashboard</title>
     <link rel="shortcut icon" href="images/stresssense_logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
         body {
-            background: linear-gradient(135deg, #dbeafe, #f0f9ff);
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 50%, #5b21b6 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            color: #e5e7eb;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23000000' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            z-index: -1;
+        }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, 10px); }
+            100% { transform: translate(0, -0px); }
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-primary {
+            background: rgba(59, 130, 246, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: rgba(37, 99, 235, 0.9);
+            transform: translateY(-1px);
+        }
+        
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            background: rgba(220, 38, 38, 0.9);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
         }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col">
+    <!-- Animated Background Elements -->
+    <div class="absolute top-10 left-10 w-20 h-20 rounded-full bg-purple-900 opacity-20 floating"></div>
+    <div class="absolute top-1/4 right-10 w-16 h-16 rounded-full bg-indigo-900 opacity-30 floating" style="animation-delay: 0.5s;"></div>
+    <div class="absolute bottom-1/4 left-20 w-24 h-24 rounded-full bg-violet-900 opacity-20 floating" style="animation-delay: 1s;"></div>
+    <div class="absolute bottom-10 right-1/4 w-12 h-12 rounded-full bg-blue-900 opacity-30 floating" style="animation-delay: 1.5s;"></div>
 
-<!-- HEADER -->
-<header class="bg-white/70 backdrop-blur shadow-sm py-3 px-6 flex items-center justify-between border-b">
-    <div class="flex items-center gap-2">
-        <img src="images/stresssense_logo.png" class="w-10 h-10" alt="Logo">
-        <span class="text-xl font-semibold tracking-wide text-gray-700">STRESS SENSE</span>
-        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full ml-2">Admin</span>
-    </div>
-    <nav class="flex items-center gap-4">
-        <span class="text-sm text-gray-600">Welcome, <?= htmlspecialchars($_SESSION['username'] ?? 'Admin') ?></span>
-        <a href="logout.php" onclick="return confirm('Are you sure you want to log out?');"
-           class="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg transition flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-            Logout
-        </a>
-    </nav>
-</header>
-
-<!-- MAIN CONTENT -->
-<main class="flex-grow px-4 py-6">
-    <div class="max-w-7xl mx-auto">
-        <!-- Dashboard Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white/90 backdrop-blur rounded-xl shadow-lg border border-blue-100/70 p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600">Total Users</p>
-                        <p class="text-3xl font-bold text-blue-700"><?= $total_users ?></p>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
-                        </svg>
-                    </div>
-                </div>
+    <!-- HEADER -->
+    <header class="py-4 px-6 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <img src="images/stresssense_logo.png" class="w-12 h-12 z-10 relative" alt="Logo">
+                <div class="absolute -inset-2 bg-white/10 rounded-full blur-sm"></div>
             </div>
-
-            <div class="bg-white/90 backdrop-blur rounded-xl shadow-lg border border-green-100/70 p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600">Active Users</p>
-                        <p class="text-3xl font-bold text-green-700"><?= $recent_users ?></p>
-                    </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white/90 backdrop-blur rounded-xl shadow-lg border border-purple-100/70 p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600">Total Assessments</p>
-                        <p class="text-3xl font-bold text-purple-700"><?= $total_assessments ?></p>
-                    </div>
-                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
+            <span class="text-2xl font-bold tracking-wide text-white">STRESS SENSE</span>
+            <span class="bg-white/10 backdrop-blur text-white text-xs px-3 py-1 rounded-full">Admin</span>
         </div>
+        
+        <div class="flex items-center gap-4">
+            <span class="text-white/80 text-sm hidden md:block">Welcome, <?= htmlspecialchars($_SESSION['username'] ?? 'Admin') ?></span>
+            <a href="logout.php" onclick="return confirm('Are you sure you want to log out?');"
+               class="btn-secondary text-white text-sm py-2 px-4 rounded-xl transition flex items-center gap-2">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </div>
+    </header>
 
-        <!-- Users Table -->
-        <div class="bg-white/90 backdrop-blur rounded-xl shadow-lg border border-blue-100/70 overflow-hidden">
-            <div class="p-6 border-b border-gray-200">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <h2 class="text-2xl font-bold text-blue-700 mb-4 md:mb-0">User Management</h2>
-                    <a href="create_user_form.php" 
-                       class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition flex items-center gap-2 text-sm w-fit">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        Add New User
-                    </a>
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow px-4 py-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Dashboard Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass-card p-6 rounded-2xl relative overflow-hidden">
+                    <div class="absolute -top-6 -right-6 w-16 h-16 rounded-full bg-gradient-to-br from-blue-900 to-purple-900 opacity-20"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-white/80 text-sm">Total Users</p>
+                                <p class="text-3xl font-bold text-white"><?= $total_users ?></p>
+                            </div>
+                            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur">
+                                <i class="fas fa-users text-white text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl relative overflow-hidden">
+                    <div class="absolute -top-6 -right-6 w-16 h-16 rounded-full bg-gradient-to-br from-green-900 to-teal-900 opacity-20"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-white/80 text-sm">Active Users</p>
+                                <p class="text-3xl font-bold text-white"><?= $recent_users ?></p>
+                            </div>
+                            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur">
+                                <i class="fas fa-user-check text-white text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl relative overflow-hidden">
+                    <div class="absolute -top-6 -right-6 w-16 h-16 rounded-full bg-gradient-to-br from-purple-900 to-pink-900 opacity-20"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-white/80 text-sm">Total Assessments</p>
+                                <p class="text-3xl font-bold text-white"><?= $total_assessments ?></p>
+                            </div>
+                            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur">
+                                <i class="fas fa-chart-bar text-white text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <?php if (empty($users)): ?>
-                <div class="p-8 text-center">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
-                        </svg>
+            <!-- Users Table -->
+            <div class="glass-card rounded-2xl overflow-hidden relative">
+                <!-- Decorative Elements -->
+                <div class="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-gradient-to-br from-indigo-900 to-purple-900 opacity-20"></div>
+                <div class="absolute -bottom-8 -left-8 w-20 h-20 rounded-full bg-gradient-to-br from-pink-900 to-purple-900 opacity-20"></div>
+                
+                <div class="p-6 border-b border-white/10 relative z-10">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <h2 class="text-2xl font-bold text-white mb-4 md:mb-0">User Management</h2>
+                        <a href="create_user_form.php" 
+                           class="btn-gradient text-white py-3 px-6 rounded-xl transition flex items-center gap-2 text-sm w-fit">
+                            <i class="fas fa-plus"></i>
+                            Add New User
+                        </a>
                     </div>
-                    <p class="text-gray-600 mb-4">No users found in the system.</p>
-                    <a href="create_user_form.php" 
-                       class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition inline-flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        Add First User
-                    </a>
                 </div>
-            <?php else: ?>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Birthday</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <?php foreach ($users as $user): ?>
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-4 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-semibold text-sm mr-3">
-                                                <?= strtoupper(substr($user['fname'] ?? 'U', 0, 1)) ?>
-                                            </div>
-                                            <div>
-                                                <div class="text-sm font-medium text-gray-900">
-                                                    <?= htmlspecialchars(($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '')) ?>
-                                                </div>
-                                                <div class="text-sm text-gray-500">
-                                                    @<?= htmlspecialchars($user['username'] ?? 'N/A') ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900"><?= htmlspecialchars($user['cno'] ?? 'N/A') ?></div>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            <?= ($user['gender'] ?? '') === 'm' ? 'bg-blue-100 text-blue-800' : 
-                                               (($user['gender'] ?? '') === 'f' ? 'bg-pink-100 text-pink-800' : 'bg-gray-100 text-gray-800') ?>">
-                                            <?= match($user['gender'] ?? '') {
-                                                'm' => 'Male',
-                                                'f' => 'Female', 
-                                                'x' => 'Not Specified',
-                                                default => 'N/A'
-                                            } ?>
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <?= htmlspecialchars($user['birthday'] ?? 'N/A') ?>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            <?= ($user['role'] ?? '') === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800' ?>">
-                                            <?= ucfirst(htmlspecialchars($user['role'] ?? 'user')) ?>
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div class="flex space-x-2">
-                                            <a href="edit_user_form.php?id=<?= $user['id'] ?>" 
-                                               class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg transition flex items-center gap-1">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                                </svg>
-                                                Edit
-                                            </a>
-                                            <form method="POST" action="process_user.php" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.')" class="inline">
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="id" value="<?= $user['id'] ?>">
-                                                <button type="submit" 
-                                                        class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-lg transition flex items-center gap-1">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
+
+                <?php if (empty($users)): ?>
+                    <div class="p-8 text-center relative z-10">
+                        <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur">
+                            <i class="fas fa-users text-white text-2xl"></i>
+                        </div>
+                        <p class="text-white/80 mb-4">No users found in the system.</p>
+                        <a href="create_user_form.php" 
+                           class="btn-gradient text-white py-3 px-6 rounded-xl transition inline-flex items-center gap-2">
+                            <i class="fas fa-plus"></i>
+                            Add First User
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <div class="overflow-x-auto relative z-10">
+                        <table class="w-full">
+                            <thead class="bg-white/10 backdrop-blur">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">User</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Contact</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Gender</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Birthday</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Role</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                                 </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
+                            </thead>
+                            <tbody class="divide-y divide-white/10">
+                                <?php foreach ($users as $user): ?>
+                                    <tr class="hover:bg-white/5 transition">
+                                        <td class="px-4 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white font-semibold text-sm mr-3 backdrop-blur">
+                                                    <?= strtoupper(substr($user['fname'] ?? 'U', 0, 1)) ?>
+                                                </div>
+                                                <div>
+                                                    <div class="text-sm font-medium text-white">
+                                                        <?= htmlspecialchars(($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '')) ?>
+                                                    </div>
+                                                    <div class="text-sm text-white/70">
+                                                        @<?= htmlspecialchars($user['username'] ?? 'N/A') ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-white"><?= htmlspecialchars($user['cno'] ?? 'N/A') ?></div>
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full backdrop-blur
+                                                <?= ($user['gender'] ?? '') === 'm' ? 'bg-blue-500/30 text-blue-200' : 
+                                                   (($user['gender'] ?? '') === 'f' ? 'bg-pink-500/30 text-pink-200' : 'bg-gray-500/30 text-gray-200') ?>">
+                                                <?= match($user['gender'] ?? '') {
+                                                    'm' => 'Male',
+                                                    'f' => 'Female', 
+                                                    'x' => 'Not Specified',
+                                                    default => 'N/A'
+                                                } ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-white/70">
+                                            <?= htmlspecialchars($user['birthday'] ?? 'N/A') ?>
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full backdrop-blur
+                                                <?= ($user['role'] ?? '') === 'admin' ? 'bg-purple-500/30 text-purple-200' : 'bg-green-500/30 text-green-200' ?>">
+                                                <?= ucfirst(htmlspecialchars($user['role'] ?? 'user')) ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="flex space-x-2">
+                                                <a href="edit_user_form.php?id=<?= $user['id'] ?>" 
+                                                   class="btn-primary text-white px-4 py-2 rounded-lg transition flex items-center gap-1">
+                                                    <i class="fas fa-edit text-xs"></i>
+                                                    Edit
+                                                </a>
+                                                <form method="POST" action="process_user.php" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.')" class="inline">
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <input type="hidden" name="id" value="<?= $user['id'] ?>">
+                                                    <button type="submit" 
+                                                            class="btn-danger text-white px-4 py-2 rounded-lg transition flex items-center gap-1">
+                                                        <i class="fas fa-trash text-xs"></i>
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
-    </div>
-</main>
+    </main>
 
-<!-- FOOTER -->
-    <footer class="bg-white/80 backdrop-blur py-4 text-center text-gray-600 text-sm border-t">
-        &copy; 2025 StressSense. All Rights Reserved |
-        <a href="About Us.php" class="hover:underline">About Us</a> |
-        <a href="PrivacyPolicy.php" class="hover:underline">Privacy Policy</a> |
-        <a href="TermsOfService.php" class="hover:underline">Terms</a> |
-        <a href="Contact.php" class="hover:underline">Contact</a>
+    <!-- FOOTER -->
+    <footer class="py-4 text-center text-white/70 text-sm">
+        <div class="container mx-auto px-4">
+            © 2025 StressSense. All Rights Reserved |
+            <a href="About Us.php" class="hover:underline mx-1">About Us</a> |
+            <a href="Privacy Policy.php" class="hover:underline mx-1">Privacy Policy</a> |
+            <a href="Terms Of Service.php" class="hover:underline mx-1">Terms</a> |
+            <a href="Contact.php" class="hover:underline mx-1">Contact</a>
+        </div>
     </footer>
 
 </body>

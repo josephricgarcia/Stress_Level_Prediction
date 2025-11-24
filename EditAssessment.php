@@ -115,99 +115,236 @@ mysqli_close($dbhandle);
     <title>StressSense - Edit Assessment</title>
     <link rel="shortcut icon" href="images/stresssense_logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: linear-gradient(135deg, #dbeafe, #f0f9ff); }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 50%, #5b21b6 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            color: #e5e7eb;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23000000' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            z-index: -1;
+        }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, 10px); }
+            100% { transform: translate(0, -0px); }
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+        
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .nav-icon {
+            width: 16px;
+            text-align: center;
+            margin-right: 6px;
+        }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col">
+    <!-- Animated Background Elements -->
+    <div class="absolute top-10 left-10 w-20 h-20 rounded-full bg-purple-900 opacity-20 floating"></div>
+    <div class="absolute top-1/4 right-10 w-16 h-16 rounded-full bg-indigo-900 opacity-30 floating" style="animation-delay: 0.5s;"></div>
+    <div class="absolute bottom-1/4 left-20 w-24 h-24 rounded-full bg-violet-900 opacity-20 floating" style="animation-delay: 1s;"></div>
+    <div class="absolute bottom-10 right-1/4 w-12 h-12 rounded-full bg-blue-900 opacity-30 floating" style="animation-delay: 1.5s;"></div>
 
-<!-- HEADER -->
-<header class="bg-white/70 backdrop-blur shadow-sm py-4 px-6 flex items-center justify-between border-b">
-    <div class="flex items-center gap-3">
-        <img src="images/stresssense_logo.png" class="w-12 h-12" alt="Logo">
-        <span class="text-2xl font-semibold tracking-wide text-gray-700">STRESS SENSE</span>
-    </div>
-    <nav class="space-x-6">
-        <a href="Home.php" class="text-gray-700 hover:text-blue-700">HOME</a>
-        <a href="Assessment.php" class="text-gray-700 hover:text-blue-700">ASSESSMENT</a>
-        <a href="History.php" class="text-gray-700 hover:text-blue-700">HISTORY</a>
-        <a href="Tips And Resources.php" class="text-gray-700 hover:text-blue-700">TIPS & RESOURCES</a>
-        <a href="Settings.php" class="text-gray-700 hover:text-blue-700">SETTINGS</a>
-    </nav>
-</header>
-
-<!-- MAIN CONTENT -->
-<main class="flex-grow flex items-center justify-center px-4 py-12">
-    <div class="bg-white/90 backdrop-blur p-10 rounded-3xl shadow-2xl w-full max-w-2xl border border-blue-100/70">
-
-        <!-- EDIT ASSESSMENT FORM -->
-        <h1 class="text-4xl font-bold text-center text-blue-700 mb-4">Edit Stress Assessment</h1>
-        <p class="text-center text-gray-600 mb-10">Update your daily average values (hours) and current GWA.</p>
-
-        <?php if ($error): ?>
-            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-center">
-                <?= htmlspecialchars($error) ?>
+    <!-- HEADER -->
+    <header class="py-4 px-6 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <img src="images/stresssense_logo.png" class="w-12 h-12 z-10 relative" alt="Logo">
+                <div class="absolute -inset-2 bg-indigo-500/30 rounded-full blur-sm"></div>
             </div>
-        <?php endif; ?>
+            <span class="text-2xl font-bold tracking-wide text-white">STRESS SENSE</span>
+        </div>
 
-        <form action="EditAssessment.php?id=<?= $assessmentId ?>" method="post" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-gray-700 font-medium mb-2">Study Hours / day</label>
-                    <input type="number" step="0.1" min="0" max="24" name="studyhours" required
-                           value="<?= htmlspecialchars($assessment['studyhours'] ?? '') ?>"
-                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-medium mb-2">Hobby Hours / day</label>
-                    <input type="number" step="0.1" min="0" max="24" name="hobbyhours" required
-                           value="<?= htmlspecialchars($assessment['hobbyhours'] ?? '') ?>"
-                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-medium mb-2">Sleep Hours / day</label>
-                    <input type="number" step="0.1" min="0" max="24" name="sleephours" required
-                           value="<?= htmlspecialchars($assessment['sleephours'] ?? '') ?>"
-                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-medium mb-2">Social Hours / day</label>
-                    <input type="number" step="0.1" min="0" max="24" name="socialhours" required
-                           value="<?= htmlspecialchars($assessment['socialhours'] ?? '') ?>"
-                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-medium mb-2">Active/Exercise Hours / day</label>
-                    <input type="number" step="0.1" min="0" max="24" name="activehours" required
-                           value="<?= htmlspecialchars($assessment['activehours'] ?? '') ?>"
-                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-medium mb-2">Current GWA</label>
-                    <input type="number" step="0.01" min="1.0" max="5.0" name="gwa" required
-                           value="<?= htmlspecialchars($assessment['gwa'] ?? '') ?>"
-                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
-                </div>
+        <nav class="hidden md:flex space-x-6">
+            <a href="Home.php" class="text-indigo-200 hover:text-white text-sm transition flex items-center">
+                <i class="fas fa-home nav-icon"></i>HOME
+            </a>
+            <a href="Assessment.php" class="text-indigo-200 hover:text-white text-sm transition flex items-center">
+                <i class="fas fa-clipboard-list nav-icon"></i>ASSESSMENT
+            </a>
+            <a href="History.php" class="text-indigo-200 hover:text-white text-sm transition flex items-center">
+                <i class="fas fa-history nav-icon"></i>HISTORY
+            </a>
+            <a href="Tips And Resources.php" class="text-indigo-200 hover:text-white text-sm transition flex items-center">
+                <i class="fas fa-lightbulb nav-icon"></i>TIPS & RESOURCES
+            </a>
+            <a href="Settings.php" class="text-indigo-200 hover:text-white text-sm transition flex items-center">
+                <i class="fas fa-cog nav-icon"></i>SETTINGS
+            </a>
+        </nav>
+        
+        <div class="flex items-center gap-4">
+            <span class="text-indigo-200 text-sm hidden md:block">Welcome, <?= htmlspecialchars($_SESSION['username'] ?? 'User') ?></span>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow flex items-center justify-center px-4 py-6">
+        <div class="glass-card p-8 rounded-3xl w-full max-w-2xl relative overflow-hidden">
+            <!-- Decorative Elements -->
+            <div class="absolute -top-10 -right-10 w-24 h-24 rounded-full bg-indigo-600/30 opacity-40"></div>
+            <div class="absolute -bottom-8 -left-8 w-20 h-20 rounded-full bg-purple-600/30 opacity-40"></div>
+            
+            <div class="relative z-10">
+                <h1 class="text-3xl font-bold text-center text-white mb-2">Edit Stress Assessment</h1>
+                <p class="text-center text-white/80 mb-6">Update your daily average values (hours) and current GWA.</p>
+
+                <?php if ($error): ?>
+                    <div id="errorToast" class="bg-red-600/80 text-white p-4 rounded-xl mb-6 text-center backdrop-blur">
+                        <div class="flex items-center justify-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            <span><?= htmlspecialchars($error) ?></span>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <form action="EditAssessment.php?id=<?= $assessmentId ?>" method="post" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-white font-medium mb-2">
+                                <i class="fas fa-book mr-2"></i>Study Hours
+                            </label>
+                            <input type="number" step="0.1" min="0" max="24" name="studyhours" required
+                                   value="<?= htmlspecialchars($assessment['studyhours'] ?? '') ?>"
+                                   class="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/10 text-white placeholder-white/50 input-focus focus:outline-none transition-all duration-300 backdrop-blur"
+                                   placeholder="0-24 hours">
+                        </div>
+                        <div>
+                            <label class="block text-white font-medium mb-2">
+                                <i class="fas fa-gamepad mr-2"></i>Hobby Hours
+                            </label>
+                            <input type="number" step="0.1" min="0" max="24" name="hobbyhours" required
+                                   value="<?= htmlspecialchars($assessment['hobbyhours'] ?? '') ?>"
+                                   class="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/10 text-white placeholder-white/50 input-focus focus:outline-none transition-all duration-300 backdrop-blur"
+                                   placeholder="0-24 hours">
+                        </div>
+                        <div>
+                            <label class="block text-white font-medium mb-2">
+                                <i class="fas fa-bed mr-2"></i>Sleep Hours
+                            </label>
+                            <input type="number" step="0.1" min="0" max="24" name="sleephours" required
+                                   value="<?= htmlspecialchars($assessment['sleephours'] ?? '') ?>"
+                                   class="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/10 text-white placeholder-white/50 input-focus focus:outline-none transition-all duration-300 backdrop-blur"
+                                   placeholder="0-24 hours">
+                        </div>
+                        <div>
+                            <label class="block text-white font-medium mb-2">
+                                <i class="fas fa-users mr-2"></i>Social Hours
+                            </label>
+                            <input type="number" step="0.1" min="0" max="24" name="socialhours" required
+                                   value="<?= htmlspecialchars($assessment['socialhours'] ?? '') ?>"
+                                   class="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/10 text-white placeholder-white/50 input-focus focus:outline-none transition-all duration-300 backdrop-blur"
+                                   placeholder="0-24 hours">
+                        </div>
+                        <div>
+                            <label class="block text-white font-medium mb-2">
+                                <i class="fas fa-running mr-2"></i>Active Hours
+                            </label>
+                            <input type="number" step="0.1" min="0" max="24" name="activehours" required
+                                   value="<?= htmlspecialchars($assessment['activehours'] ?? '') ?>"
+                                   class="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/10 text-white placeholder-white/50 input-focus focus:outline-none transition-all duration-300 backdrop-blur"
+                                   placeholder="0-24 hours">
+                        </div>
+                        <div>
+                            <label class="block text-white font-medium mb-2">
+                                <i class="fas fa-graduation-cap mr-2"></i>Current GWA
+                            </label>
+                            <input type="number" step="0.01" min="1.0" max="5.0" name="gwa" required
+                                   value="<?= htmlspecialchars($assessment['gwa'] ?? '') ?>"
+                                   class="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/10 text-white placeholder-white/50 input-focus focus:outline-none transition-all duration-300 backdrop-blur"
+                                   placeholder="1.0-5.0">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-center gap-4 mt-8">
+                        <button type="submit" name="submit"
+                                class="btn-gradient text-white py-4 px-12 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg flex items-center justify-center gap-2">
+                            <i class="fas fa-save"></i> UPDATE ASSESSMENT
+                        </button>
+
+                        <a href="History.php"
+                            class="bg-red-600 hover:bg-red-700 text-white py-4 px-8 rounded-xl font-semibold transition-all duration-300 shadow-lg flex items-center justify-center gap-2">
+                            <i class="fas fa-times"></i> CANCEL
+                        </a>
+                    </div>
+                </form>
             </div>
+        </div>
+    </main>
 
-            <div class="text-center mt-8">
-                <button type="submit" name="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white py-4 px-12 rounded-xl text-lg font-semibold shadow-lg transition-all duration-200">
-                    UPDATE ASSESSMENT
-                </button>
-            </div>
-        </form>
-    </div>
-</main>
-
-<!-- FOOTER -->
-<footer class="bg-white/80 backdrop-blur py-4 text-center text-gray-600 text-sm border-t">
-    &copy; 2025 StressSense. All Rights Reserved |
-    <a href="About Us.php" class="hover:underline">About Us</a> |
-    <a href="Privacy Policy.php" class="hover:underline">Privacy Policy</a> |
-    <a href="Terms Of Service.php" class="hover:underline">Terms</a> |
-    <a href="Contact.php" class="hover:underline">Contact</a>
-</footer>
+    <!-- FOOTER -->
+    <footer class="py-4 text-center text-white/70 text-sm">
+        <div class="container mx-auto px-4">
+            &copy; 2025 StressSense. All Rights Reserved |
+            <a href="About Us.php" class="hover:underline mx-1">About Us</a> |
+            <a href="Privacy Policy.php" class="hover:underline mx-1">Privacy Policy</a> |
+            <a href="Terms Of Service.php" class="hover:underline mx-1">Terms</a> |
+            <a href="Contact.php" class="hover:underline mx-1">Contact</a>
+        </div>
+    </footer>
 
 </body>
 </html>
