@@ -204,27 +204,27 @@ if (isset($_POST['submit'])) {
             <form action="Assessment.php" method="post" class="space-y-4">
                 <div class="grid grid-cols-1 gap-4">
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1 text-sm">Study Hours / day</label>
+                        <label class="block text-gray-700 font-medium mb-1 text-sm">Study Hours</label>
                         <input type="number" step="0.1" min="0" max="24" name="studyhours" required
                                class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1 text-sm">Hobby Hours / day</label>
+                        <label class="block text-gray-700 font-medium mb-1 text-sm">Hobby Hours</label>
                         <input type="number" step="0.1" min="0" max="24" name="hobbyhours" required
                                class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1 text-sm">Sleep Hours / day</label>
+                        <label class="block text-gray-700 font-medium mb-1 text-sm">Sleep Hours</label>
                         <input type="number" step="0.1" min="0" max="24" name="sleephours" required
                                class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1 text-sm">Social Hours / day</label>
+                        <label class="block text-gray-700 font-medium mb-1 text-sm">Social Hours</label>
                         <input type="number" step="0.1" min="0" max="24" name="socialhours" required
                                class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1 text-sm">Active/Exercise Hours / day</label>
+                        <label class="block text-gray-700 font-medium mb-1 text-sm">Active/Exercise Hours</label>
                         <input type="number" step="0.1" min="0" max="24" name="activehours" required
                                class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
