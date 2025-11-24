@@ -11,7 +11,42 @@ if (!$dbhandle) {
     die("Database connection failed: " . mysqli_connect_error());
 }
 
-$query = "SELECT * FROM users";
+// Get user statistics (using safe queries that don't rely on created_at)
+$total_users_query = "SELECT COUNT(*) as total FROM users";
+$total_users_result = mysqli_query($dbhandle, $total_users_query);
+$total_users = mysqli_fetch_assoc($total_users_result)['total'];
+
+// Get recent users (fallback to total users if we can't determine recency)
+$recent_users = 0;
+try {
+    // Check if created_at column exists
+    $check_column_query = "SHOW COLUMNS FROM users LIKE 'created_at'";
+    $column_result = mysqli_query($dbhandle, $check_column_query);
+    if (mysqli_num_rows($column_result) > 0) {
+        $recent_users_query = "SELECT COUNT(*) as recent FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+        $recent_users_result = mysqli_query($dbhandle, $recent_users_query);
+        $recent_users = mysqli_fetch_assoc($recent_users_result)['recent'];
+    } else {
+        // If no created_at column, use a safe fallback
+        $recent_users_query = "SELECT COUNT(*) as recent FROM users";
+        $recent_users_result = mysqli_query($dbhandle, $recent_users_query);
+        $recent_users = mysqli_fetch_assoc($recent_users_result)['recent'];
+    }
+} catch (Exception $e) {
+    // If any error occurs, default to total users
+    $recent_users = $total_users;
+}
+
+$total_assessments_query = "SELECT COUNT(*) as total FROM assessment";
+$total_assessments_result = mysqli_query($dbhandle, $total_assessments_query);
+if ($total_assessments_result) {
+    $total_assessments = mysqli_fetch_assoc($total_assessments_result)['total'];
+} else {
+    $total_assessments = 0;
+}
+
+// Get users data
+$query = "SELECT * FROM users ORDER BY id DESC";
 $result = mysqli_query($dbhandle, $query);
 if (!$result) {
     die("Error fetching users: " . mysqli_error($dbhandle));
@@ -34,97 +69,214 @@ if ($success_message) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StresSense: Admin Dashboard</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>StressSense - Admin Dashboard</title>
     <link rel="shortcut icon" href="images/stresssense_logo.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #dbeafe, #f0f9ff);
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <div class="logo">
-            <img src="images/stresssense_logo.png" alt="Logo"> STRESS SENSE
-        </div>
-        <nav>
-            <a href="logout.php" class="logout-link">Logout</a>
-        </nav>
-    </header>
+<body class="min-h-screen flex flex-col">
 
-    <div class="history-content">
-        <h2>Manage Users</h2>
-        <?php if (empty($users)): ?>
-            <p>No users found. <a href="create_user_form.php" class="add-user-link">Add New User</a></p>
-        <?php else: ?>
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Last Name</th>
-                        <th>First Name</th>
-                        <th>Middle Name</th>
-                        <th>Gender</th>
-                        <th>Birthday</th>
-                        <th>Contact No</th>
-                        <th>Username</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($users as $user): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($user['id']); ?></td>
-                            <td><?php echo htmlspecialchars($user['lname']); ?></td>
-                            <td><?php echo htmlspecialchars($user['fname']); ?></td>
-                            <td><?php echo htmlspecialchars($user['mname']); ?></td>
-                            <td><?php
-                                switch($user['gender']) {
-                                    case 'm': echo 'Male'; break;
-                                    case 'f': echo 'Female'; break;
-                                    case 'x': echo 'Prefer not to say'; break;
-                                    default: echo htmlspecialchars($user['gender']);
-                                }
-                            ?></td>
-                            <td><?php echo htmlspecialchars($user['birthday']); ?></td>
-                            <td><?php echo htmlspecialchars($user['cno']); ?></td>
-                            <td><?php echo htmlspecialchars($user['username']); ?></td>
-                            <td><?php echo htmlspecialchars($user['role']); ?></td>
-                            <td class="actions">
-                                <a href="edit_user_form.php?id=<?php echo $user['id']; ?>" class="edit-btn">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                                <form method="POST" action="process_user.php" onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="id" value="<?php echo $user['id']; ?>">
-                                    <button type="delete" class="delete-btn">
-                                        <i class="fas fa-trash-alt"></i> Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-            <a href="create_user_form.php" class="add-user-link">
-                <i class="fas fa-user-plus"></i> Add New User
-            </a>
-        <?php endif; ?>
+<!-- HEADER -->
+<header class="bg-white/70 backdrop-blur shadow-sm py-3 px-6 flex items-center justify-between border-b">
+    <div class="flex items-center gap-2">
+        <img src="images/stresssense_logo.png" class="w-10 h-10" alt="Logo">
+        <span class="text-xl font-semibold tracking-wide text-gray-700">STRESS SENSE</span>
+        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full ml-2">Admin</span>
     </div>
+    <nav class="flex items-center gap-4">
+        <span class="text-sm text-gray-600">Welcome, <?= htmlspecialchars($_SESSION['username'] ?? 'Admin') ?></span>
+        <a href="logout.php" onclick="return confirm('Are you sure you want to log out?');"
+           class="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg transition flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            Logout
+        </a>
+    </nav>
+</header>
 
-    <footer>
-        &copy; 2025 StressSense. All Rights Reserved. |
-        <a href="AboutUs.php">About Us</a> | <a href="PrivacyPolicy.php">Privacy Policy</a> | 
-        <a href="TermsOfService.php">Terms of Service</a> | <a href="Contact.php">Contact Us</a>
+<!-- MAIN CONTENT -->
+<main class="flex-grow px-4 py-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white/90 backdrop-blur rounded-xl shadow-lg border border-blue-100/70 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Total Users</p>
+                        <p class="text-3xl font-bold text-blue-700"><?= $total_users ?></p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/90 backdrop-blur rounded-xl shadow-lg border border-green-100/70 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Active Users</p>
+                        <p class="text-3xl font-bold text-green-700"><?= $recent_users ?></p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/90 backdrop-blur rounded-xl shadow-lg border border-purple-100/70 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Total Assessments</p>
+                        <p class="text-3xl font-bold text-purple-700"><?= $total_assessments ?></p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="bg-white/90 backdrop-blur rounded-xl shadow-lg border border-blue-100/70 overflow-hidden">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <h2 class="text-2xl font-bold text-blue-700 mb-4 md:mb-0">User Management</h2>
+                    <a href="create_user_form.php" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition flex items-center gap-2 text-sm w-fit">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Add New User
+                    </a>
+                </div>
+            </div>
+
+            <?php if (empty($users)): ?>
+                <div class="p-8 text-center">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                        </svg>
+                    </div>
+                    <p class="text-gray-600 mb-4">No users found in the system.</p>
+                    <a href="create_user_form.php" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Add First User
+                    </a>
+                </div>
+            <?php else: ?>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Birthday</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php foreach ($users as $user): ?>
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-semibold text-sm mr-3">
+                                                <?= strtoupper(substr($user['fname'] ?? 'U', 0, 1)) ?>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    <?= htmlspecialchars(($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '')) ?>
+                                                </div>
+                                                <div class="text-sm text-gray-500">
+                                                    @<?= htmlspecialchars($user['username'] ?? 'N/A') ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900"><?= htmlspecialchars($user['cno'] ?? 'N/A') ?></div>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            <?= ($user['gender'] ?? '') === 'm' ? 'bg-blue-100 text-blue-800' : 
+                                               (($user['gender'] ?? '') === 'f' ? 'bg-pink-100 text-pink-800' : 'bg-gray-100 text-gray-800') ?>">
+                                            <?= match($user['gender'] ?? '') {
+                                                'm' => 'Male',
+                                                'f' => 'Female', 
+                                                'x' => 'Not Specified',
+                                                default => 'N/A'
+                                            } ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <?= htmlspecialchars($user['birthday'] ?? 'N/A') ?>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            <?= ($user['role'] ?? '') === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800' ?>">
+                                            <?= ucfirst(htmlspecialchars($user['role'] ?? 'user')) ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <a href="edit_user_form.php?id=<?= $user['id'] ?>" 
+                                               class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg transition flex items-center gap-1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                </svg>
+                                                Edit
+                                            </a>
+                                            <form method="POST" action="process_user.php" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.')" class="inline">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="id" value="<?= $user['id'] ?>">
+                                                <button type="submit" 
+                                                        class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-lg transition flex items-center gap-1">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</main>
+
+<!-- FOOTER -->
+    <footer class="bg-white/80 backdrop-blur py-4 text-center text-gray-600 text-sm border-t">
+        &copy; 2025 StressSense. All Rights Reserved |
+        <a href="About Us.php" class="hover:underline">About Us</a> |
+        <a href="PrivacyPolicy.php" class="hover:underline">Privacy Policy</a> |
+        <a href="TermsOfService.php" class="hover:underline">Terms</a> |
+        <a href="Contact.php" class="hover:underline">Contact</a>
     </footer>
 
-    <script>
-        document.querySelector('.logout-link').addEventListener('click', function(event) {
-            if (!confirm('Are you sure you want to log out?')) {
-                event.preventDefault();
-            }
-        });
-    </script>
 </body>
 </html>
+
 <?php
 if ($dbhandle) {
     mysqli_close($dbhandle);

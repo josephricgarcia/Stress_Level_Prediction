@@ -112,81 +112,102 @@ mysqli_close($dbhandle);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StressSense: Edit Assessment</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>StressSense - Edit Assessment</title>
     <link rel="shortcut icon" href="images/stresssense_logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: linear-gradient(135deg, #dbeafe, #f0f9ff); }
+    </style>
 </head>
-<body>
-    <header>
-        <div class="logo">
-            <img src="images/stresssense_logo.png" alt="Logo"> STRESS SENSE
-        </div>
-        <nav>
-            <a href="home.php">HOME</a>
-            <a href="assessment.php">ASSESSMENT</a>
-            <a href="History.php">HISTORY</a>
-            <a href="TipsAndResources.php">TIPS AND RESOURCES</a>
-            <a href="settings.php">SETTINGS</a>
-        </nav>
-    </header>
+<body class="min-h-screen flex flex-col">
 
-    <div class="assessment-content">
-        <?php if ($error): ?>
-            <p class="error"><?php echo htmlspecialchars($error); ?></p>
-        <?php endif; ?>
-        
-        <div class="assessment-form">
-            <form method="POST" action="EditAssessment.php?id=<?php echo $assessmentId; ?>">
-                <h2>Edit Assessment</h2>
-                <p>Update your stress assessment details</p>
-
-                <div class="assessment">
-                    <label for="studyhours">Study Hours</label>
-                    <input type="number" id="studyhours" name="studyhours" step="0.1" min="0" max="24" 
-                           value="<?php echo htmlspecialchars($assessment['studyhours'] ?? ''); ?>" required>
-                </div>
-
-                <div class="assessment">
-                    <label for="hobbyhours">Hobby Hours</label>
-                    <input type="number" id="hobbyhours" name="hobbyhours" step="0.1" min="0" max="24" 
-                           value="<?php echo htmlspecialchars($assessment['hobbyhours'] ?? ''); ?>" required>
-                </div>
-
-                <div class="assessment">
-                    <label for="sleephours">Sleep Hours</label>
-                    <input type="number" id="sleephours" name="sleephours" step="0.1" min="0" max="24" 
-                           value="<?php echo htmlspecialchars($assessment['sleephours'] ?? ''); ?>" required>
-                </div>
-
-                <div class="assessment">
-                    <label for="socialhours">Social Hours</label>
-                    <input type="number" id="socialhours" name="socialhours" step="0.1" min="0" max="24" 
-                           value="<?php echo htmlspecialchars($assessment['socialhours'] ?? ''); ?>" required>
-                </div>
-
-                <div class="assessment">
-                    <label for="activehours">Active Hours</label>
-                    <input type="number" id="activehours" name="activehours" step="0.1" min="0" max="24" 
-                           value="<?php echo htmlspecialchars($assessment['activehours'] ?? ''); ?>" required>
-                </div>
-
-                <div class="assessment">
-                    <label for="gwa">GWA</label>
-                    <input type="number" id="gwa" name="gwa" step="0.1" min="1.0" max="5.0" 
-                           value="<?php echo htmlspecialchars($assessment['gwa'] ?? ''); ?>" required>
-                </div>
-
-                <button type="submit" name="submit" class="update-btn">UPDATE ASSESSMENT</button>
-            </form>
-        </div>
+<!-- HEADER -->
+<header class="bg-white/70 backdrop-blur shadow-sm py-4 px-6 flex items-center justify-between border-b">
+    <div class="flex items-center gap-3">
+        <img src="images/stresssense_logo.png" class="w-12 h-12" alt="Logo">
+        <span class="text-2xl font-semibold tracking-wide text-gray-700">STRESS SENSE</span>
     </div>
+    <nav class="space-x-6">
+        <a href="Home.php" class="text-gray-700 hover:text-blue-700">HOME</a>
+        <a href="Assessment.php" class="text-gray-700 hover:text-blue-700">ASSESSMENT</a>
+        <a href="History.php" class="text-gray-700 hover:text-blue-700">HISTORY</a>
+        <a href="Tips And Resources.php" class="text-gray-700 hover:text-blue-700">TIPS & RESOURCES</a>
+        <a href="Settings.php" class="text-gray-700 hover:text-blue-700">SETTINGS</a>
+    </nav>
+</header>
 
-    <footer>
-        &copy; 2025 StressSense. All Rights Reserved. |
-        <a href="AboutUs.php">About Us</a> | 
-        <a href="PrivacyPolicy.php">Privacy Policy</a> | 
-        <a href="TermsOfService.php">Terms of Service</a> | 
-        <a href="Contact.php">Contact Us</a>
-    </footer>
+<!-- MAIN CONTENT -->
+<main class="flex-grow flex items-center justify-center px-4 py-12">
+    <div class="bg-white/90 backdrop-blur p-10 rounded-3xl shadow-2xl w-full max-w-2xl border border-blue-100/70">
+
+        <!-- EDIT ASSESSMENT FORM -->
+        <h1 class="text-4xl font-bold text-center text-blue-700 mb-4">Edit Stress Assessment</h1>
+        <p class="text-center text-gray-600 mb-10">Update your daily average values (hours) and current GWA.</p>
+
+        <?php if ($error): ?>
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-center">
+                <?= htmlspecialchars($error) ?>
+            </div>
+        <?php endif; ?>
+
+        <form action="EditAssessment.php?id=<?= $assessmentId ?>" method="post" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Study Hours / day</label>
+                    <input type="number" step="0.1" min="0" max="24" name="studyhours" required
+                           value="<?= htmlspecialchars($assessment['studyhours'] ?? '') ?>"
+                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Hobby Hours / day</label>
+                    <input type="number" step="0.1" min="0" max="24" name="hobbyhours" required
+                           value="<?= htmlspecialchars($assessment['hobbyhours'] ?? '') ?>"
+                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Sleep Hours / day</label>
+                    <input type="number" step="0.1" min="0" max="24" name="sleephours" required
+                           value="<?= htmlspecialchars($assessment['sleephours'] ?? '') ?>"
+                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Social Hours / day</label>
+                    <input type="number" step="0.1" min="0" max="24" name="socialhours" required
+                           value="<?= htmlspecialchars($assessment['socialhours'] ?? '') ?>"
+                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Active/Exercise Hours / day</label>
+                    <input type="number" step="0.1" min="0" max="24" name="activehours" required
+                           value="<?= htmlspecialchars($assessment['activehours'] ?? '') ?>"
+                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Current GWA</label>
+                    <input type="number" step="0.01" min="1.0" max="5.0" name="gwa" required
+                           value="<?= htmlspecialchars($assessment['gwa'] ?? '') ?>"
+                           class="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-500 transition">
+                </div>
+            </div>
+
+            <div class="text-center mt-8">
+                <button type="submit" name="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white py-4 px-12 rounded-xl text-lg font-semibold shadow-lg transition-all duration-200">
+                    UPDATE ASSESSMENT
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-white/80 backdrop-blur py-4 text-center text-gray-600 text-sm border-t">
+    &copy; 2025 StressSense. All Rights Reserved |
+    <a href="About Us.php" class="hover:underline">About Us</a> |
+    <a href="Privacy Policy.php" class="hover:underline">Privacy Policy</a> |
+    <a href="Terms Of Service.php" class="hover:underline">Terms</a> |
+    <a href="Contact.php" class="hover:underline">Contact</a>
+</footer>
+
 </body>
 </html>

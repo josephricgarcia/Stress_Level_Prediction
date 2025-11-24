@@ -9,17 +9,17 @@ $message = '';
 if (isset($_POST['submit'])) {
     // Input validation
     $fields = [
-        'studyhours' => FILTER_VALIDATE_FLOAT,
-        'hobbyhours' => FILTER_VALIDATE_FLOAT,
-        'sleephours' => FILTER_VALIDATE_FLOAT,
-        'socialhours' => FILTER_VALIDATE_FLOAT,
-        'activehours' => FILTER_VALIDATE_FLOAT,
-        'gwa' => FILTER_VALIDATE_FLOAT
+        'studyhours'    => FILTER_VALIDATE_FLOAT,
+        'hobbyhours'    => FILTER_VALIDATE_FLOAT,
+        'sleephours'    => FILTER_VALIDATE_FLOAT,
+        'socialhours'   => FILTER_VALIDATE_FLOAT,
+        'activehours'   => FILTER_VALIDATE_FLOAT,
+        'gwa'           => FILTER_VALIDATE_FLOAT
     ];
-    
+
     $inputs = filter_input_array(INPUT_POST, $fields);
     $valid = true;
-    
+
     foreach ($inputs as $field => $value) {
         if ($value === false || ($field !== 'gwa' && ($value < 0 || $value > 24)) || ($field === 'gwa' && ($value < 1.0 || $value > 5.0))) {
             $valid = false;
@@ -28,49 +28,42 @@ if (isset($_POST['submit'])) {
     }
 
     if (!$valid) {
-        $message = 'Invalid input. Please check values.';
+        $message = 'Invalid input. Please check your values.';
     } else {
-        // API Call
         $apiData = json_encode([
-            'studyhours' => (float)$inputs['studyhours'],
-            'hobbyhours' => (float)$inputs['hobbyhours'],
-            'sleephours' => (float)$inputs['sleephours'],
+            'studyhours'  => (float)$inputs['studyhours'],
+            'hobbyhours'  => (float)$inputs['hobbyhours'],
+            'sleephours'  => (float)$inputs['sleephours'],
             'socialhours' => (float)$inputs['socialhours'],
             'activehours' => (float)$inputs['activehours'],
-            'gwa' => (float)$inputs['gwa']
+            'gwa'         => (float)$inputs['gwa']
         ]);
 
         $ch = curl_init('http://127.0.0.1:8000/predict_stress');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-            CURLOPT_POSTFIELDS => $apiData,
-            CURLOPT_TIMEOUT => 10
+            CURLOPT_POST           => true,
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS     => $apiData,
+            CURLOPT_TIMEOUT        => 10
         ]);
 
         $response = curl_exec($ch);
-        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $status   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($status === 200) {
+        if ($status === 200 && $response) {
             $prediction = json_decode($response, true);
-            $stmt = mysqli_prepare($dbhandle, 
+
+            $stmt = mysqli_prepare($dbhandle,
                 "INSERT INTO assessment 
                 (studyhours, hobbyhours, sleephours, socialhours, activehours, gwa, userId, stress_level, confidence) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
             );
-            
-            mysqli_stmt_bind_param($stmt, "ddddddiss", 
-                $inputs['studyhours'],
-                $inputs['hobbyhours'],
-                $inputs['sleephours'],
-                $inputs['socialhours'],
-                $inputs['activehours'],
-                $inputs['gwa'],
-                $_SESSION['user_id'],
-                $prediction['stress_level'],
-                $prediction['confidence']
+            mysqli_stmt_bind_param($stmt, "ddddddisd",
+                $inputs['studyhours'], $inputs['hobbyhours'], $inputs['sleephours'],
+                $inputs['socialhours'], $inputs['activehours'], $inputs['gwa'],
+                $_SESSION['user_id'], $prediction['stress_level'], $prediction['confidence']
             );
 
             if (mysqli_stmt_execute($stmt)) {
@@ -81,7 +74,7 @@ if (isset($_POST['submit'])) {
             }
             mysqli_stmt_close($stmt);
         } else {
-            echo "<script>alert('Prediction service unavailable. Try again later.');</script>";
+            echo "<script>alert('Prediction service unavailable. Please try again later.');</script>";
         }
     }
 }
@@ -92,232 +85,175 @@ if (isset($_POST['submit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StressSense: Assessment</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>StressSense - Assessment</title>
     <link rel="shortcut icon" href="images/stresssense_logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .result-card {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-            background: #fff;
-        }
-        .result-card h3 {
-            margin-top: 0;
-            color: #333;
-        }
-        .chart-container {
-            max-width: 300px;
-            margin: 20px auto;
-        }
-        .button-group {
-            margin-top: 20px;
-        }
-        .button-group a, .button-group button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 5px;
-            text-decoration: none;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .button-group .retake-btn {
-            background: #fd7e14; /* Orange for retake */
-        }
-        .button-group .retake-btn:hover {
-            background: #e06c00;
-        }
-        .button-group .history-btn {
-            background: #20c997; /* Teal for history */
-        }
-        .button-group .history-btn:hover {
-            background: #1ba87e;
-        }
-        .button-group .tips-btn {
-            background: #28a745; /* Green for tips */
-        }
-        .button-group .tips-btn:hover {
-            background: #218838;
-        }
-        .error-message {
-            color: red;
-            text-align: center;
-            margin: 20px;
-        }
+        body { background: linear-gradient(135deg, #dbeafe, #f0f9ff); }
     </style>
 </head>
-<body>
-    <header>
-        <div class="logo">
-            <img src="images/stresssense_logo.png" alt="Logo"> STRESS SENSE
-        </div>
-        <nav>
-            <a href="Home.php">HOME</a>
-            <a href="Assessment.php" class="active">ASSESSMENT</a>
-            <a href="History.php">HISTORY</a>
-            <a href="Tips And Resources.php">TIPS AND RESOURCES</a>
-            <a href="Settings.php">SETTINGS</a>
-        </nav>
-    </header>
+<body class="min-h-screen flex flex-col">
 
-    <div class="assessment-content">
+<!-- HEADER -->
+<header class="bg-white/70 backdrop-blur shadow-sm py-3 px-6 flex items-center justify-between border-b">
+    <div class="flex items-center gap-2">
+        <img src="images/stresssense_logo.png" class="w-10 h-10" alt="Logo">
+        <span class="text-xl font-semibold tracking-wide text-gray-700">STRESS SENSE</span>
+    </div>
+    <nav class="space-x-4">
+        <a href="Home.php" class="text-gray-700 hover:text-blue-700 text-sm">HOME</a>
+        <a href="Assessment.php" class="text-blue-700 font-semibold text-sm">ASSESSMENT</a>
+        <a href="History.php" class="text-gray-700 hover:text-blue-700 text-sm">HISTORY</a>
+        <a href="Tips And Resources.php" class="text-gray-700 hover:text-blue-700 text-sm">TIPS & RESOURCES</a>
+        <a href="Settings.php" class="text-gray-700 hover:text-blue-700 text-sm">SETTINGS</a>
+    </nav>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="flex-grow flex items-center justify-center px-4 py-6">
+    <div class="bg-white/90 backdrop-blur p-6 rounded-xl shadow-lg w-full max-w-md border border-blue-100/70">
+
         <?php if ($showResult && $prediction): ?>
-            <div class="result-card">
-                <h2>Assessment Result</h2>
-                <p><?php echo $message; ?></p>
-                <div class="chart-container">
+            <!-- RESULT CARD -->
+            <div class="text-center">
+                <h1 class="text-2xl font-bold text-blue-700 mb-4">Your Stress Assessment</h1>
+                <p class="text-lg text-gray-700 mb-6"><?= htmlspecialchars($message) ?></p>
+
+                <div class="max-w-xs mx-auto mb-6">
                     <canvas id="stressChart"></canvas>
                 </div>
-                <div class="button-group">
-                    <button class="retake-btn" onclick="window.location.href='Assessment.php'">Retake Assessment</button>
-                    <a class="history-btn" href="History.php">View History</a>
-                    <a class="tips-btn" href="Tips And Resources.php">Tips and Resources</a>
+
+                <div class="flex flex-col gap-3">
+                    <button onclick="location.href='Assessment.php'" 
+                            class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded-lg font-medium transition text-sm">
+                        Retake Assessment
+                    </button>
+                    <a href="History.php" 
+                       class="bg-teal-500 hover:bg-teal-600 text-white py-2 px-6 rounded-lg font-medium transition text-sm">
+                        View History
+                    </a>
+                    <a href="Tips And Resources.php" 
+                       class="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-lg font-medium transition text-sm">
+                        Tips & Resources
+                    </a>
                 </div>
             </div>
+
             <script>
                 const ctx = document.getElementById('stressChart').getContext('2d');
-                const stressLevel = '<?php echo $prediction['stress_level']; ?>';
-                let data, color, percentage, label;
+                const level = '<?= $prediction['stress_level'] ?>';
+                let data, colors, label, percent;
 
-                if (stressLevel === 'Low') {
-                    data = [33, 67]; // 33% filled, 67% transparent
-                    color = ['#28a745', 'rgba(0,0,0,0)']; // Green and transparent
-                    percentage = '33%';
+                if (level === 'Low') {
+                    data = [33, 67];
+                    colors = ['#28a745', '#e9ecef'];
                     label = 'Low Stress';
-                } else if (stressLevel === 'Moderate') {
-                    data = [66, 34]; // 66% filled, 34% transparent
-                    color = ['#ffc107', 'rgba(0,0,0,0)']; // Yellow and transparent
-                    percentage = '66%';
+                    percent = '33%';
+                } else if (level === 'Moderate') {
+                    data = [66, 34];
+                    colors = ['#ffc107', '#e9ecef'];
                     label = 'Moderate Stress';
+                    percent = '66%';
                 } else {
-                    data = [99.99, 0.01]; // 99.99% filled, 0.01% transparent to fix seam
-                    color = ['#dc3545', 'rgba(0,0,0,0)']; // Red and transparent
-                    percentage = '100%';
+                    data = [100, 0];
+                    colors = ['#dc3545', '#e9ecef'];
                     label = 'High Stress';
+                    percent = '100%';
                 }
 
                 new Chart(ctx, {
-                    type: 'pie',
+                    type: 'doughnut',
                     data: {
-                        labels: [label, ...(stressLevel !== 'High' ? [''] : [''])],
-                        datasets: [{
-                            data: data,
-                            backgroundColor: color,
-                        }]
+                        labels: [label, ''],
+                        datasets: [{ data, backgroundColor: colors, borderWidth: 0 }]
                     },
                     options: {
-                        responsive: true,
+                        cutout: '75%',
                         plugins: {
-                            legend: {
-                                position: 'bottom'
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        if (context.label === '') return '';
-                                        return `${context.label}: ${percentage}`;
-                                    }
-                                }
-                            }
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: () => `${label}: ${percent}` } }
                         }
-                    }
+                    },
+                    plugins: [{
+                        afterDraw(chart) {
+                            const ctx = chart.ctx;
+                            ctx.save();
+                            ctx.font = 'bold 1.5rem sans-serif';
+                            ctx.fillStyle = '#1e40af';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(percent, chart.width / 2, chart.height / 2);
+                            ctx.restore();
+                        }
+                    }]
                 });
             </script>
-        <?php elseif ($message): ?>
-            <p class="error-message"><?php echo $message; ?></p>
-            <div class="assessment-form">
-                <form action="Assessment.php" method="post">
-                    <h2>Assessment Form</h2>
-                    <p>Note: All values are in hours per day except GWA.</p>
 
-                    <div class="assessment">
-                        <label for="studyhours">Study Hours</label>
-                        <input type="number" id="studyhours" name="studyhours" step="0.1" min="0" max="24" value="<?php echo isset($inputs['studyhours']) ? $inputs['studyhours'] : ''; ?>" required>
-                    </div>
-
-                    <div class="assessment">
-                        <label for="hobbyhours">Hobby Hours</label>
-                        <input type="number" id="hobbyhours" name="hobbyhours" step="0.1" min="0" max="24" value="<?php echo isset($inputs['hobbyhours']) ? $inputs['hobbyhours'] : ''; ?>" required>
-                    </div>
-
-                    <div class="assessment">
-                        <label for="sleephours">Sleep Hours</label>
-                        <input type="number" id="sleephours" name="sleephours" step="0.1" min="0" max="24" value="<?php echo isset($inputs['sleephours']) ? $inputs['sleephours'] : ''; ?>" required>
-                    </div>
-
-                    <div class="assessment">
-                        <label for="socialhours">Social Hours</label>
-                        <input type="number" id="socialhours" name="socialhours" step="0.1" min="0" max="24" value="<?php echo isset($inputs['socialhours']) ? $inputs['socialhours'] : ''; ?>" required>
-                    </div>
-
-                    <div class="assessment">
-                        <label for="activehours">Active Hours</label>
-                        <input type="number" id="activehours" name="activehours" step="0.1" min="0" max="24" value="<?php echo isset($inputs['activehours']) ? $inputs['activehours'] : ''; ?>" required>
-                    </div>
-
-                    <div class="assessment">
-                        <label for="gwa">GWA</label>
-                        <input type="number" id="gwa" name="gwa" step="0.1" min="1.0" max="5.0" value="<?php echo isset($inputs['gwa']) ? $inputs['gwa'] : ''; ?>" required>
-                    </div>
-
-                    <button type="submit" name="submit" class="submit-btn">SUBMIT</button>
-                </form>
-            </div>
         <?php else: ?>
-            <div class="assessment-form">
-                <form action="Assessment.php" method="post">
-                    <h2>Assessment Form</h2>
-                    <p>Note: All values are in hours per day except GWA.</p>
+            <!-- ASSESSMENT FORM -->
+            <h1 class="text-2xl font-bold text-center text-blue-700 mb-3">Stress Assessment</h1>
+            <p class="text-center text-gray-600 text-sm mb-6">Enter your daily average values (hours) and current GWA.</p>
 
-                    <div class="assessment">
-                        <label for="studyhours">Study Hours</label>
-                        <input type="number" id="studyhours" name="studyhours" step="0.1" min="0" max="24" required>
+            <?php if ($message): ?>
+                <div class="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg mb-4 text-center text-sm">
+                    <?= htmlspecialchars($message) ?>
+                </div>
+            <?php endif; ?>
+
+            <form action="Assessment.php" method="post" class="space-y-4">
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1 text-sm">Study Hours / day</label>
+                        <input type="number" step="0.1" min="0" max="24" name="studyhours" required
+                               class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
-
-                    <div class="assessment">
-                        <label for="hobbyhours">Hobby Hours</label>
-                        <input type="number" id="hobbyhours" name="hobbyhours" step="0.1" min="0" max="24" required>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1 text-sm">Hobby Hours / day</label>
+                        <input type="number" step="0.1" min="0" max="24" name="hobbyhours" required
+                               class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
-
-                    <div class="assessment">
-                        <label for="sleephours">Sleep Hours</label>
-                        <input type="number" id="sleephours" name="sleephours" step="0.1" min="0" max="24" required>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1 text-sm">Sleep Hours / day</label>
+                        <input type="number" step="0.1" min="0" max="24" name="sleephours" required
+                               class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
-
-                    <div class="assessment">
-                        <label for="socialhours">Social Hours</label>
-                        <input type="number" id="socialhours" name="socialhours" step="0.1" min="0" max="24" required>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1 text-sm">Social Hours / day</label>
+                        <input type="number" step="0.1" min="0" max="24" name="socialhours" required
+                               class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
-
-                    <div class="assessment">
-                        <label for="activehours">Active Hours</label>
-                        <input type="number" id="activehours" name="activehours" step="0.1" min="0" max="24" required>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1 text-sm">Active/Exercise Hours / day</label>
+                        <input type="number" step="0.1" min="0" max="24" name="activehours" required
+                               class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
-
-                    <div class="assessment">
-                        <label for="gwa">GWA</label>
-                        <input type="number" id="gwa" name="gwa" step="0.1" min="1.0" max="5.0" required>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1 text-sm">Current GWA</label>
+                        <input type="number" step="0.01" min="1.0" max="5.0" name="gwa" required
+                               class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
+                </div>
 
-                    <button type="submit" name="submit" class="submit-btn">SUBMIT</button>
-                </form>
-            </div>
+                <div class="text-center mt-6">
+                    <button type="submit" name="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-8 rounded-lg font-medium shadow transition-all duration-200 text-sm">
+                        SUBMIT ASSESSMENT
+                    </button>
+                </div>
+            </form>
         <?php endif; ?>
     </div>
+</main>
 
-    <footer>
-        © 2025 StressSense. All Rights Reserved. |
-        <a href="About Us.php">About Us</a> | 
-        <a href="Privacy Policy.php">Privacy Policy</a> | 
-        <a href="Terms Of Service.php">Terms of Service</a> | 
-        <a href="Contact.php">Contact Us</a>
-    </footer>
+<!-- FOOTER -->
+<footer class="bg-white/80 backdrop-blur py-3 text-center text-gray-600 text-xs border-t">
+    &copy; 2025 StressSense. All Rights Reserved |
+    <a href="About Us.php" class="hover:underline">About Us</a> |
+    <a href="Privacy Policy.php" class="hover:underline">Privacy Policy</a> |
+    <a href="Terms Of Service.php" class="hover:underline">Terms</a> |
+    <a href="Contact.php" class="hover:underline">Contact</a>
+</footer>
+
 </body>
 </html>
