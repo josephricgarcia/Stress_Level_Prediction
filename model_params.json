@@ -1,0 +1,16 @@
+{
+    "model_type": "rule_based_enhanced",
+    "labels": ["Low", "Moderate", "High"],
+    "feature_importances": {
+        "sleephours": 0.25,
+        "studyhours": 0.20,
+        "gwa": 0.18,
+        "hobbyhours": 0.15,
+        "socialhours": 0.12,
+        "activehours": 0.10
+    },
+    "scaler": {
+        "mean": [6.5, 2.5, 7.2, 3.1, 1.8, 2.3],
+        "scale": [3.2, 2.1, 1.8, 2.4, 1.5, 0.8]
+    }
+}

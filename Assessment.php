@@ -27,56 +27,45 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    if (!$valid) {
-        $message = 'Invalid input. Please check your values.';
-    } else {
-        $apiData = json_encode([
-            'studyhours'  => (float)$inputs['studyhours'],
-            'hobbyhours'  => (float)$inputs['hobbyhours'],
-            'sleephours'  => (float)$inputs['sleephours'],
-            'socialhours' => (float)$inputs['socialhours'],
-            'activehours' => (float)$inputs['activehours'],
-            'gwa'         => (float)$inputs['gwa']
-        ]);
+if (!$valid) {
+    $message = 'Invalid input. Please check your values.';
+} else {
+    // Include the stress prediction model
+    include 'stress_model.php';
+    
+    // Get prediction from PHP model
+    $prediction = predictStress(
+        (float)$inputs['studyhours'],
+        (float)$inputs['hobbyhours'],
+        (float)$inputs['sleephours'],
+        (float)$inputs['socialhours'],
+        (float)$inputs['activehours'],
+        (float)$inputs['gwa']
+    );
 
-        $ch = curl_init('http://127.0.0.1:8000/predict_stress');
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => true,
-            CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-            CURLOPT_POSTFIELDS     => $apiData,
-            CURLOPT_TIMEOUT        => 10
-        ]);
+    if ($prediction && isset($prediction['stress_level'])) {
+        $stmt = mysqli_prepare($dbhandle,
+            "INSERT INTO assessment 
+            (studyhours, hobbyhours, sleephours, socialhours, activehours, gwa, userId, stress_level, confidence) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        mysqli_stmt_bind_param($stmt, "ddddddisd",
+            $inputs['studyhours'], $inputs['hobbyhours'], $inputs['sleephours'],
+            $inputs['socialhours'], $inputs['activehours'], $inputs['gwa'],
+            $_SESSION['user_id'], $prediction['stress_level'], $prediction['confidence']
+        );
 
-        $response = curl_exec($ch);
-        $status   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($status === 200 && $response) {
-            $prediction = json_decode($response, true);
-
-            $stmt = mysqli_prepare($dbhandle,
-                "INSERT INTO assessment 
-                (studyhours, hobbyhours, sleephours, socialhours, activehours, gwa, userId, stress_level, confidence) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            );
-            mysqli_stmt_bind_param($stmt, "ddddddisd",
-                $inputs['studyhours'], $inputs['hobbyhours'], $inputs['sleephours'],
-                $inputs['socialhours'], $inputs['activehours'], $inputs['gwa'],
-                $_SESSION['user_id'], $prediction['stress_level'], $prediction['confidence']
-            );
-
-            if (mysqli_stmt_execute($stmt)) {
-                $showResult = true;
-                $message = "Stress Level: {$prediction['stress_level']}, Confidence: " . round($prediction['confidence'] * 100, 2) . "%";
-            } else {
-                $message = 'Database error: ' . mysqli_error($dbhandle);
-            }
-            mysqli_stmt_close($stmt);
+        if (mysqli_stmt_execute($stmt)) {
+            $showResult = true;
+            $message = "Stress Level: {$prediction['stress_level']}, Confidence: " . round($prediction['confidence'] * 100, 2) . "%";
         } else {
-            echo "<script>alert('Prediction service unavailable. Please try again later.');</script>";
+            $message = 'Database error: ' . mysqli_error($dbhandle);
         }
+        mysqli_stmt_close($stmt);
+    } else {
+        $message = 'Prediction error. Please try again.';
     }
+}
 }
 ?>
 
